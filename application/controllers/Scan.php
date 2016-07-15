@@ -64,7 +64,7 @@
 			echo json_encode($data1);
 		}
 		
-		function proses(){
+		/*function proses(){
 		  $url = $this->input->post('scan');
 		  $masa = $this->input->post('masa_pajak');
 		  $tahun = $this->input->post('tahun_pajak');
@@ -205,7 +205,176 @@
 			  );
 			  echo json_encode($dataz);
 		  }
+		  }*/
+		
+		function proses(){
+		  $url = $this->input->post('scan');
+		  $masa = $this->input->post('masa_pajak');
+		  $tahun = $this->input->post('tahun_pajak');
+		  if($url != ''){
+		  //$url = $this->input->post('scan');
+		  $xml = simplexml_load_file($url) or die("feed not loading");
+		  
+		  //looping header ke dalam array
+		  foreach ($xml->children() as $child)
+		  {
+			  $data[] = $child;
 		  }
+		  
+		  for($i = 0;$i < count($data);$i++){
+			  $data[$i];
+		  }
+		  
+		  //set up tanggal dan query header
+		  $header['kd_jenis_transaksi'] = $data[0];
+		  $header['fg_pengganti'] = $data[1];
+		  $header['no_seri'] = $data[2];
+		  $thn = substr($data[3],6,4);
+		  $bln = substr($data[3],3,2);
+		  $tgl = substr($data[3],0,2);
+		  
+		  //input2
+		  $header['tgl_faktur'] = date('Y-m-d',strtotime($thn.'-'.$bln.'-'.$tgl));
+		  $input2 = date('Y-F', strtotime($thn.'-'.$bln));
+		  $header['npwp_penjual'] = $data[4];
+		  $header['nama_penjual'] = $data[5];
+		  $header['alamat_penjual'] = $data[6];
+		  $header['npwp_lawan_transaksi'] = $data[7];
+		  $header['nama_lawan_transaksi'] = $data[8];
+		  $header['alamat_lawan_transaksi'] = $data[9];
+		  $header['jumlah_dpp'] = $data[10];
+		  $header['jumlah_ppn'] = $data[11];
+		  $header['jumlah_ppnbm'] = $data[12];
+		  $header['status_approval'] = $data[13];
+		  $header['status_faktur'] = $data[14];
+		  date_default_timezone_set('Asia/Jakarta');
+		  //input1
+		  $scan_dt = date("Y-m-d H:i:s");
+		  $input = date('Y-F');
+		  //Looping detail faktur
+		  
+		  //input3
+		  $input3 = date("Y-F",strtotime("-3 Months", strtotime($input)));
+		  
+		  if(strtotime($input2) < strtotime($input3)){
+			  $dataz = array(
+				'status' => 'Expired',
+				'color' => 'FF6B6B'
+			  );
+			  echo json_encode($dataz);
+		  }else if(strtotime($input2) >= strtotime($input)){
+			  $dataz = array(
+				'status' => 'NotYet',
+				'color' => 'FF6B6B'
+			  );
+			  echo json_encode($dataz);
+		  }else{
+			  $cek1 = $this->db->query("select * from tblExportEvanHeadTemp where kd_jenis_transaksi='".$data[0]."' and fg_pengganti='".$data[1]."' and no_seri='".$data[2]."'");
+			  if($cek1->num_rows() == 0){
+					$cek2 = $this->db->query("select * from tblExport_Faktur_Header where kd_jenis_transaksi='".$data[0]."' and fg_pengganti='".$data[1]."' and no_seri='".$data[2]."'");
+					if($cek2->num_rows() == 0){
+						  $query_header = $this->db->query("insert into tblExportEvanHeadTemp 
+						  (kd_jenis_transaksi,fg_pengganti,no_seri,tgl_faktur,masa_pajak,tahun_pajak,npwp_penjual,nama_penjual,alamat_penjual,npwp_lawan_transaksi,
+						  nama_lawan_transaksi,alamat_lawan_transaksi,jumlah_dpp,jumlah_ppn,jumlah_ppnbm,status_approval,status_faktur,status_generate,tgl_scan) VALUES 
+						  (".$data[0].",".$data[1].",'".$data[2]."','".date('Y-m-d',strtotime($thn.'-'.$bln.'-'.$tgl))."','".$masa."','".$tahun."','".$data[4]."','".$data[5]."','".$data[6]."','".$data[7]."','".$data[8]."','".$data[9]."'
+						  ,".$data[10].",".$data[11].",".$data[12].",'".$data[13]."','".$data[14]."','Success','".$scan_dt."')");
+						  
+						  //Detail faktur looping array
+						  for($j = 0;$j < count($xml->detailTransaksi);$j++){
+							  $i = 0;
+							  foreach ($xml->detailTransaksi[$j]->children() as $child)
+							  {
+								  $data1[$j][$i] = $child;
+								  $i++;
+							  }
+						  }
+						  //query detail faktur
+						  for($j = 0;$j < count($xml->detailTransaksi);$j++){
+							  $detail['no_seri_fk'] = $header['no_seri'];
+							  $detail['nama'] = $data1[$j][0];
+							  $detail['harga_satuan'] = $data1[$j][1];
+							  $detail['jumlah_barang'] = $data1[$j][2];
+							  $detail['harga_total'] = $data1[$j][3];
+							  $detail['diskon'] = $data1[$j][4];
+							  $detail['dpp'] = $data1[$j][5];
+							  $detail['ppn'] = $data1[$j][6];
+							  $detail['tarif_ppnbm'] = $data1[$j][7];
+							  $detail['ppnbm'] = $data1[$j][8];
+							  
+							  $query_detail = $this->db->query("insert into tblExportEvanDetailTemp (no_seri_fk,nama,harga_satuan,jumlah_barang,harga_total,diskon,dpp,ppn,tarif_ppnbm,ppnbm) 
+							  values ('".$header['no_seri']."','".$data1[$j][0]."','".$data1[$j][1]."','".$data1[$j][2]."','".$data1[$j][3]."','".$data1[$j][4]."','".$data1[$j][5]."','".$data1[$j][6]."','".$data1[$j][7]."','".$data1[$j][8]."')");
+						  }
+						  
+						  if($query_header){
+							$dataz = array(
+								'status' => 'Sukses',
+								'color' => 'FF6B6B'
+							);
+							echo json_encode($dataz);
+						  }else{
+							$dataz = array(
+								'status' => 'Failed',
+								'color' => 'FF6B6B'
+							);
+							echo json_encode($dataz);
+						  }
+					}else{
+						$query_header = $this->db->query("insert into tblExportEvanHeadTemp 
+						  (kd_jenis_transaksi,fg_pengganti,no_seri,tgl_faktur,masa_pajak,tahun_pajak,npwp_penjual,nama_penjual,alamat_penjual,npwp_lawan_transaksi,
+						  nama_lawan_transaksi,alamat_lawan_transaksi,jumlah_dpp,jumlah_ppn,jumlah_ppnbm,status_approval,status_faktur,status_generate,tgl_scan) VALUES 
+						  (".$data[0].",".$data[1].",'".$data[2]."','".date('Y-m-d',strtotime($thn.'-'.$bln.'-'.$tgl))."','".$masa."','".$tahun."','".$data[4]."','".$data[5]."','".$data[6]."','".$data[7]."','".$data[8]."','".$data[9]."'
+						  ,".$data[10].",".$data[11].",".$data[12].",'".$data[13]."','".$data[14]."','Available','".$scan_dt."')");
+						  
+						  //Detail faktur looping array
+						  for($j = 0;$j < count($xml->detailTransaksi);$j++){
+							  $i = 0;
+							  foreach ($xml->detailTransaksi[$j]->children() as $child)
+							  {
+								  $data1[$j][$i] = $child;
+								  $i++;
+							  }
+						  }
+						  //query detail faktur
+						  for($j = 0;$j < count($xml->detailTransaksi);$j++){
+							  $detail['no_seri_fk'] = $header['no_seri'];
+							  $detail['nama'] = $data1[$j][0];
+							  $detail['harga_satuan'] = $data1[$j][1];
+							  $detail['jumlah_barang'] = $data1[$j][2];
+							  $detail['harga_total'] = $data1[$j][3];
+							  $detail['diskon'] = $data1[$j][4];
+							  $detail['dpp'] = $data1[$j][5];
+							  $detail['ppn'] = $data1[$j][6];
+							  $detail['tarif_ppnbm'] = $data1[$j][7];
+							  $detail['ppnbm'] = $data1[$j][8];
+							  
+							  $query_detail = $this->db->query("insert into tblExportEvanDetailTemp (no_seri_fk,nama,harga_satuan,jumlah_barang,harga_total,diskon,dpp,ppn,tarif_ppnbm,ppnbm) 
+							  values ('".$header['no_seri']."','".$data1[$j][0]."','".$data1[$j][1]."','".$data1[$j][2]."','".$data1[$j][3]."','".$data1[$j][4]."','".$data1[$j][5]."','".$data1[$j][6]."','".$data1[$j][7]."','".$data1[$j][8]."')");
+						  }
+						$dataz = array(
+							'status' => 'Available',
+							'color' => 'FF6B6B'
+						);
+						echo json_encode($dataz);
+					}
+			  }else{
+				  $dataz = array(
+					'status' => 'Double',
+					'color' => 'FF6B6B'
+				  );
+				  echo json_encode($dataz);
+			  }
+			  
+		  }
+		  
+		  }else{
+			  $dataz = array(
+				'status' => 'Empty',
+				'color' => 'FF6B6B'
+			  );
+			  echo json_encode($dataz);
+		  }
+		}
+		
 		
 		function overwrite($id){			
 			$id = $this->uri->segment(3);

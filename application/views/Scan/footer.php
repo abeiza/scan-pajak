@@ -45,8 +45,8 @@
 					confirm: function(){
 						//$.alert('Confirmed!'); // shorthand.
 						document.getElementById("scan").value  = '';
-						document.getElementById("masa_pajak").value  = '';
-						document.getElementById("tahun_pajak").value  = '';
+						//document.getElementById("masa_pajak").value  = '';
+						//document.getElementById("tahun_pajak").value  = '';
 						document.getElementById("scan").focus();
 					}
 				});
@@ -59,8 +59,8 @@
 					confirm: function(){
 						//$.alert('Confirmed!'); // shorthand.
 						document.getElementById("scan").value  = '';
-						document.getElementById("masa_pajak").value  = '';
-						document.getElementById("tahun_pajak").value  = '';
+						//document.getElementById("masa_pajak").value  = '';
+						//document.getElementById("tahun_pajak").value  = '';
 						document.getElementById("scan").focus();
 					}
 				});
@@ -73,8 +73,36 @@
 					confirm: function(){
 						//$.alert('Confirmed!'); // shorthand.
 						document.getElementById("scan").value  = '';
-						document.getElementById("masa_pajak").value  = '';
-						document.getElementById("tahun_pajak").value  = '';
+						//document.getElementById("masa_pajak").value  = '';
+						//document.getElementById("tahun_pajak").value  = '';
+						document.getElementById("scan").focus();
+					}
+				});
+			}
+			
+			function alert_expired(){
+				$.alert({
+					title: '<span style="color:#FF6B6B;"><i class="fa fa-close" style="margin-right:5px;"></i>Message</span>',
+					content: 'Faktur Pajak Date has Expired!',
+					confirm: function(){
+						//$.alert('Confirmed!'); // shorthand.
+						document.getElementById("scan").value  = '';
+						//document.getElementById("masa_pajak").value  = '';
+						//document.getElementById("tahun_pajak").value  = '';
+						document.getElementById("scan").focus();
+					}
+				});
+			}
+			
+			function alert_notyet(){
+				$.alert({
+					title: '<span style="color:#FF6B6B;"><i class="fa fa-close" style="margin-right:5px;"></i>Message</span>',
+					content: 'Invoice Cant be Scanned! Please Check Invoice Date . . .',
+					confirm: function(){
+						//$.alert('Confirmed!'); // shorthand.
+						document.getElementById("scan").value  = '';
+						//document.getElementById("masa_pajak").value  = '';
+						//document.getElementById("tahun_pajak").value  = '';
 						document.getElementById("scan").focus();
 					}
 				});

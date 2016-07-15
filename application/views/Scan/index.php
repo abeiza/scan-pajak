@@ -115,6 +115,12 @@
 				}else if(data.status == 'Empty'){
 					$("#dvloader").hide();
 					alert_empty();
+				}else if(data.status == 'Expired'){
+					$("#dvloader").hide();
+					alert_expired();
+				}else if(data.status == 'NotYet'){
+					$("#dvloader").hide();
+					alert_notyet();
 				}else if(data.status == 'Available'){
 					$("#dvloader").hide();
 					conf_overwrite();
@@ -294,7 +300,7 @@
 								<input type="number" id='masa_pajak' name='masa_pajak' style="width:98.5%;padding:1.5%;border-radius:3px;border:1px solid #e1e1e1;margin:2.5px 0px;" placeholder="Tax Month"/>
 							</div>
 							<div style="width:30%;float:left;">
-								<span>Year Month</span>
+								<span>Tax Year</span>
 								<input type="number" id='tahun_pajak' name='tahun_pajak' style="width:98.5%;padding:1.5%;border-radius:3px;border:1px solid #e1e1e1;margin:2.5px 0px;" placeholder="Tax Year"/>
 							</div>
 						</div>
