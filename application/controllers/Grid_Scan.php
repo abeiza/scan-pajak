@@ -78,6 +78,9 @@
 								->setCellValue('M'.$i, $h->jumlah_ppnbm)
 								->setCellValue('N'.$i, '1');
 				$i++;
+				
+				$data1['status_scan'] = 'Export';
+				$this->model_db->update_data("tblExport_Faktur_Header", 'ObjectID', $h->ObjectID, $data1);
 				}
 				
 				

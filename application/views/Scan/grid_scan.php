@@ -14,12 +14,87 @@
 			<script src="<?php echo base_url();?>assets/js/jquery-1.9.1.js"></script>
 			<div class="main side-content">
 				<div class="container" style="margin:0px;margin-bottom:5px;padding:0;">
-					<div class="container" style="margin-bottom:20px;">
-						<h2 style="display:inline;margin-top:20px;padding-left:20px;">DataGrid e-Faktur</h2>
-						<button id='multi-export' style="margin-left:20px;cursor:pointer;float:left;background-color:#444;font-weight:bold;color:#fff;padding:7px 10px;margin:2.5px 0px;border:1px solid #e1e1e1;border-radius:5px;font-size:14px;"><i class='fa fa-file-text-o' style='margin-right:5px;'></i>Export CSV</button> 
+					<div class="container">
+						<h2 style="display:inline;text-align:right;margin-top:20px;">DataGrid e-Faktur</h2>
+					</div>
+					<div class="container" style="margin-bottom:20px;width:100%;">
+						<button id='multi-export' style="margin-left:20px;cursor:pointer;background-color:#444;color:#fff;padding:7px 10px;margin:2.5px 0px;border:1px solid #e1e1e1;border-radius:5px;font-size:14px;"><i class='fa fa-file-text-o' style='margin-right:5px;'></i>Export CSV</button> 
+						<form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" style="float:left;">
+						<label>Filter Data : </label>
+						<select name="bulan" id="bulan" style="height:35px;border-radius:3px;border: solid 1px #DADADA;box-shadow: 0 0 5px rgba(123, 123, 123, 0.2);padding:1px 10px;">
+							<?php 
+								foreach(range('1', '12') as $m) : 
+								if(isset($_POST['bulan']))
+								{
+									?>
+								 <option value="<?php echo $m; ?>" <?php if ($_POST['bulan'] == $m) { echo 'selected="selected"'; } ?>>
+									<?php echo date('F', mktime(0, 0, 0, $m, 10)) ?>
+								 </option>
+							<?php 
+								}else{
+							?>
+								 <option value="<?php echo $m; ?>" <?php if (date('n') == $m) { echo 'selected="selected"'; } ?>>
+									<?php echo date('F', mktime(0, 0, 0, $m, 10)) ?>
+								 </option>
+							<?php
+								}
+								endforeach; 
+							?>
+					   </select>
+					   <input id="tahun" name="tahun" placeholder="YYYY - Year" value="<?php if(isset($_POST['tahun'])){echo $_POST['tahun'];}else{echo date('Y');}?>" type="number" style="border-radius:3px;border: solid 1px #DADADA;box-shadow: 0 0 5px rgba(123, 123, 123, 0.2);height:32px;padding:1px 10px;"/>
+					   <select name="status" style="height:35px;border-radius:3px;border: solid 1px #DADADA;box-shadow: 0 0 5px rgba(123, 123, 123, 0.2);padding:1px 10px;">
+							<option disabled>-- Select Status --</option>
+							<?php 
+								if(isset($_POST['status'])){
+									if($_POST['status'] == 'Export'){
+										?>
+										<option value="all">All</option>
+										<option value="Export" selected >Export</option>
+										<option value="Scanned">Scanned</option>
+										<?php
+									}else if($_POST['status'] == 'All'){
+										?>
+										<option value="all" selected>All</option>
+										<option value="Export">Export</option>
+										<option value="Scanned">Scanned</option>
+										<?php
+									}else{
+										?>
+										<option value="all">All</option>
+										<option value="Export">Export</option>
+										<option selected value="Scanned">Scanned</option>
+										<?php
+									}
+								}else{
+								?>
+									<option value="all">All</option>
+									<option value="Export">Export</option>
+									<option value="Scanned" selected>Scanned</option>
+								<?php
+								}
+							?>
+					   </select>
+					   <button name="submit" type="submit" style="margin-left:20px;cursor:pointer;background-color:#444;color:#fff;padding:7px 10px;margin:2.5px 0px;border:1px solid #e1e1e1;border-radius:5px;font-size:14px;"><i class='fa fa-filter' style='margin-right:5px;'></i>Filter</button> 
+
+					   <?php 
+							echo form_close();
+					   ?>
 					</div>
 					<div id="body">
 						<?php 
+							if(isset($_POST['submit'])) 
+							{ 
+								$bulan = $_POST['bulan'];
+								$tahun = $_POST['tahun'];
+								$status = $_POST['status'];
+								if($status == "all"){
+									$phpgrid->set_query_filter("tahun_pajak='".$tahun."' and masa_pajak='".$bulan."'");
+								}else{
+									$phpgrid->set_query_filter("tahun_pajak='".$tahun."' and masa_pajak='".$bulan."' and status_scan='".$status."'");
+								}
+							}else{
+								$phpgrid->set_query_filter("tahun_pajak='".date('Y')."' and masa_pajak='".date('m')."' and status_scan='Scanned'");
+							}
 							$data = null;
 							$phpgrid->set_caption("<div><h4 style='text-align:center;width:200px;margin:auto;padding:20px 0px;'><i class='fa fa-desktop' style='margin-right:5px;'></i>ALL FAKTUR</h4></div>");
 							$phpgrid->enable_edit("FORM","R"); 
@@ -64,6 +139,7 @@
 							
 							$phpgrid->set_col_align("masa_pajak", 'center'); 
 							$phpgrid->set_col_align("tahun_pajak", 'center'); 
+							$phpgrid->set_col_align("status_scan", 'center'); 
 							
 							//hidden column on datagrid
 							$phpgrid->set_col_hidden('npwp_lawan_transaksi');
@@ -72,6 +148,7 @@
 							$phpgrid->set_col_hidden('kd_jenis_transaksi');
 							$phpgrid->set_col_hidden('fg_pengganti');
 							$phpgrid->set_col_hidden('tgl_scan');
+							$phpgrid->set_col_hidden('ObjectID');
 							
 							$phpgrid->enable_search(true);
 							$phpgrid->set_multiselect(true);

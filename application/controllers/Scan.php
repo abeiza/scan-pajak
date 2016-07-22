@@ -252,9 +252,9 @@
 		  $scan_dt = date("Y-m-d H:i:s");
 		  $input = date('Y-F');
 		  //Looping detail faktur
-		  
+		  $parameterinput = date("Y-F",strtotime($tahun.'-'.$masa));
 		  //input3
-		  $input3 = date("Y-F",strtotime("-3 Months", strtotime($input)));
+		  $input3 = date("Y-F",strtotime("-3 Months", strtotime($parameterinput)));
 		  
 		  if(strtotime($input2) < strtotime($input3)){
 			  $dataz = array(
@@ -262,7 +262,7 @@
 				'color' => 'FF6B6B'
 			  );
 			  echo json_encode($dataz);
-		  }else if(strtotime($input2) >= strtotime($input)){
+		  }else if(strtotime($input2) > strtotime($parameterinput)){
 			  $dataz = array(
 				'status' => 'NotYet',
 				'color' => 'FF6B6B'
@@ -411,6 +411,7 @@
 					$data_h['status_approval'] = $header->status_approval;
 					$data_h['status_faktur'] = $header->status_faktur;
 					$data_h['tgl_scan'] = $header->tgl_scan;
+					$data_h['status_scan'] = 'Scanned';
 					
 					$insert = $this->model_db->insert_data('tblExport_Faktur_Header', $data_h);
 					

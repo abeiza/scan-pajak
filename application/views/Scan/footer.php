@@ -27,8 +27,8 @@
 									});
 								total_data();
 								document.getElementById("scan").value  = '';
-								document.getElementById("masa_pajak").value  = '';
-								document.getElementById("tahun_pajak").value  = '';
+								//document.getElementById("masa_pajak").value  = '';
+								//document.getElementById("tahun_pajak").value  = '';
 								document.getElementById("scan").focus();
 							}
 						});
@@ -115,8 +115,8 @@
 					confirm: function(){
 						//$.alert('Confirmed!'); // shorthand.
 						document.getElementById("scan").value  = '';
-						document.getElementById("masa_pajak").value  = '';
-						document.getElementById("tahun_pajak").value  = '';
+						//document.getElementById("masa_pajak").value  = '';
+						//document.getElementById("tahun_pajak").value  = '';
 						document.getElementById("scan").focus();
 					}
 				});

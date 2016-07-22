@@ -142,8 +142,8 @@
 									});
 							total_data();
 							document.getElementById("scan").value  = '';
-							document.getElementById("masa_pajak").value  = '';
-							document.getElementById("tahun_pajak").value  = '';
+							//document.getElementById("masa_pajak").value  = '';
+							//document.getElementById("tahun_pajak").value  = '';
 							document.getElementById("scan").focus();
 						}
 					});	 
@@ -166,8 +166,8 @@
 									$('#grid-table tbody').append("<tr><td>"+data.no_seri+"</td><td>"+data.tgl_faktur+"</td><td>"+data.masa_pajak+"</td><td>"+data.tahun_pajak+"</td><td>"+data.nama_penjual+"</td><td>"+currencyFormat(data.jumlah_dpp)+"</td><td>"+currencyFormat(data.jumlah_ppn)+"</td><td>"+data.status_generate+"</td><td style='border-right:transparent;width:25px;'><a style='color:#F9896D' id='"+data.no_seri+"' onclick='delete_data($(this))'><i style='color:#F9896D'  class='fa fa-close'></i></a></td></tr>");
 									});
 				document.getElementById("scan").value  = '';
-				document.getElementById("masa_pajak").value  = '';
-				document.getElementById("tahun_pajak").value  = '';
+				//document.getElementById("masa_pajak").value  = '';
+				//document.getElementById("tahun_pajak").value  = '';
 				document.getElementById("filter").focus();
             }
           });
